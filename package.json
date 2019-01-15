@@ -1,0 +1,29 @@
+{
+  "name": "new-typeorm-project",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/node": "^8.10.39",
+    "prettier": "^1.15.3",
+    "ts-node": "3.3.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "moment": "^2.23.0",
+    "mysql": "^2.16.0",
+    "reflect-metadata": "^0.1.12",
+    "routing-controllers": "^0.7.7",
+    "typeorm": "^0.2.7",
+    "typeorm-routing-controllers-extensions": "^0.2.0"
+  },
+  "scripts": {
+    "start": "tsc -w & node build/index.js"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
+  }
+}
