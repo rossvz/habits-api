@@ -5,7 +5,7 @@ import { createExpressServer } from 'routing-controllers'
 import { createConnection } from 'typeorm'
 import connectionOptions from './connectionOptions'
 
-const PORT = 8383
+const PORT = process.env.PORT || 8383
 
 createConnection(connectionOptions)
   .then(async connection => {
