@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "habits-api",
+  "builds": [
+    { "src": "build/index.js", "use": "@now/node-server" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "build/index.js" }
+  ]
+}
