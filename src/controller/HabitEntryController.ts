@@ -1,6 +1,6 @@
-import { Get, HttpCode, JsonController, OnUndefined, Post, QueryParam } from 'routing-controllers'
+import { Delete, Get, HttpCode, JsonController, OnUndefined, Post, QueryParam } from 'routing-controllers'
 import { getConnectionManager, Raw, Repository } from 'typeorm'
-import { EntityFromBody } from 'typeorm-routing-controllers-extensions'
+import { EntityFromBody, EntityFromParam } from 'typeorm-routing-controllers-extensions'
 import { HabitEntry } from '../entity/HabitEntry'
 import moment from 'moment'
 
@@ -32,6 +32,12 @@ export class HabitEntryController {
   @OnUndefined(204)
   @Post('/entries')
   async create(@EntityFromBody() entry: HabitEntry) {
-    await this.repo.save(entry)
+    const newEntry = await this.repo.save(entry)
+    return this.repo.findOne(newEntry.id)
+  }
+
+  @Delete('/entries/:id')
+  delete(@EntityFromParam('id') entry:HabitEntry){
+    return this.repo.remove(entry)
   }
 }

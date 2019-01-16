@@ -1,4 +1,4 @@
-import { Get, JsonController, Post, QueryParam } from 'routing-controllers'
+import { Get, JsonController, OnNull, Post, QueryParam } from 'routing-controllers'
 import { getConnectionManager, Repository } from 'typeorm'
 import {
   EntityFromBody,
@@ -16,8 +16,10 @@ export class UserController {
   }
 
   @Get('/users')
-  get(@QueryParam("email") email?:string ) {
-    return this.repo.find(email ? {email } : {})
+  @OnNull(404)
+  async get (@QueryParam("email") email?: string) {
+    const users = await this.repo.find(email ? { email } : {})
+    return users.length ? users : null
   }
 
   @Get('/users/:userId')
