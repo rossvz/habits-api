@@ -1,6 +1,9 @@
-import { Delete, Get, JsonController, Post } from 'routing-controllers'
+import { Delete, Get, JsonController, OnNull, Post } from 'routing-controllers'
 import { getConnectionManager, Repository } from 'typeorm'
-import { EntityFromBody, EntityFromParam } from 'typeorm-routing-controllers-extensions'
+import {
+  EntityFromBody,
+  EntityFromParam
+} from 'typeorm-routing-controllers-extensions'
 import { Habit } from '../entity/Habit'
 
 @JsonController()
@@ -10,6 +13,12 @@ export class HabitController {
     this.repo = getConnectionManager()
       .get()
       .getRepository(Habit)
+  }
+
+  @OnNull(200)
+  @Get('/ping')
+  ping() {
+    return null
   }
 
   @Get('/habits')
@@ -23,7 +32,7 @@ export class HabitController {
   }
 
   @Delete('/habits/:id')
-  delete(@EntityFromParam("id") habit: Habit){
+  delete(@EntityFromParam('id') habit: Habit) {
     return this.repo.remove(habit)
   }
 }
