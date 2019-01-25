@@ -1,6 +1,17 @@
-import { Delete, Get, HttpCode, JsonController, OnUndefined, Post, QueryParam } from 'routing-controllers'
+import {
+  Delete,
+  Get,
+  HttpCode,
+  JsonController,
+  OnUndefined,
+  Post,
+  QueryParam
+} from 'routing-controllers'
 import { getConnectionManager, Raw, Repository } from 'typeorm'
-import { EntityFromBody, EntityFromParam } from 'typeorm-routing-controllers-extensions'
+import {
+  EntityFromBody,
+  EntityFromParam
+} from 'typeorm-routing-controllers-extensions'
 import { HabitEntry } from '../entity/HabitEntry'
 import moment from 'moment'
 
@@ -20,12 +31,17 @@ export class HabitEntryController {
   }
 
   @Get('/entries/today')
-  getTodayEntries(@QueryParam("userId") userId: string) {
-    return this.repo.createQueryBuilder('entry')
-      .leftJoinAndSelect('entry.habit','habit')
-      .leftJoinAndSelect('habit.user','user',)
-      .where('user.id = :userId',{userId})
-      .andWhere('entry.created >= :today',{today: moment().startOf('day').format('YYYY-MM-DD')})
+  getTodayEntries(@QueryParam('userId') userId: string) {
+    return this.repo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.habit', 'habit')
+      .leftJoinAndSelect('habit.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('entry.created >= :today', {
+        today: moment()
+          .startOf('day')
+          .format('YYYY-MM-DD')
+      })
       .getMany()
   }
 
@@ -37,7 +53,9 @@ export class HabitEntryController {
   }
 
   @Delete('/entries/:id')
-  delete(@EntityFromParam('id') entry:HabitEntry){
-    return this.repo.remove(entry)
+  async delete(@EntityFromParam('id') entry: HabitEntry) {
+    const { id } = entry
+    await this.repo.remove(entry)
+    return { ...entry, id }
   }
 }
