@@ -23,10 +23,10 @@ export class HabitEntry {
   @JoinColumn({ name: 'habit_id' })
   habit: Habit
 
-  @CreateDateColumn()
+  @Column()
   created: Date
 
-  @UpdateDateColumn()
+  @Column()
   updated: Date
 
   @Column()
@@ -41,6 +41,12 @@ export class HabitEntry {
 
   @BeforeInsert()
   insertUnixStamp() {
-    this.unixCreated = moment().unix()
+    if (!this.unixCreated) {
+      this.unixCreated = moment().unix()
+    }
+    if (this.unixCreated) {
+      this.created = moment.unix(this.unixCreated).toDate()
+    }
+    this.updated = moment().toDate()
   }
 }
