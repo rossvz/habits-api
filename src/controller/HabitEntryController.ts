@@ -1,19 +1,21 @@
+import moment from 'moment'
 import {
   Delete,
   Get,
-  HttpCode,
   JsonController,
   OnUndefined,
+  Param,
   Post,
   QueryParam
 } from 'routing-controllers'
-import { getConnectionManager, Raw, Repository } from 'typeorm'
+import { getConnectionManager, Repository } from 'typeorm'
 import {
   EntityFromBody,
   EntityFromParam
 } from 'typeorm-routing-controllers-extensions'
 import { HabitEntry } from '../entity/HabitEntry'
-import moment from 'moment'
+
+type Period = 'day' | 'week' | 'month' | 'year'
 
 @JsonController()
 export class HabitEntryController {
@@ -30,16 +32,39 @@ export class HabitEntryController {
     return this.repo.find()
   }
 
-  @Get('/entries/today')
-  getTodayEntries(@QueryParam('userId') userId: string) {
+  @Get('/entries/between')
+  getBetween(
+    @QueryParam('start') start: number,
+    @QueryParam('end') end: number,
+    @QueryParam('userId') userId: string
+  ) {
     return this.repo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.habit', 'habit')
       .leftJoinAndSelect('habit.user', 'user')
       .where('user.id = :userId', { userId })
-      .andWhere('entry.created >= :today', {
-        today: moment()
-          .startOf('day')
+      .andWhere('entry.unixCreated >= :start', {
+        start: start / 1000
+      })
+      .andWhere('entry.unixCreated <= :end', {
+        end: end / 1000
+      })
+      .getMany()
+  }
+
+  @Get('/entries/today')
+  getTodayEntries(
+    @QueryParam('userId') userId: string,
+    @QueryParam('period') period: Period = 'day'
+  ) {
+    return this.repo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.habit', 'habit')
+      .leftJoinAndSelect('habit.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('entry.created >= :start', {
+        start: moment()
+          .startOf(period)
           .format('YYYY-MM-DD')
       })
       .getMany()
