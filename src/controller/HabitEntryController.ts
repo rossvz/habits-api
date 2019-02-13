@@ -44,10 +44,10 @@ export class HabitEntryController {
       .leftJoinAndSelect('habit.user', 'user')
       .where('user.id = :userId', { userId })
       .andWhere('entry.unixCreated >= :start', {
-        start: start / 1000
+        start: start
       })
       .andWhere('entry.unixCreated <= :end', {
-        end: end / 1000
+        end: end
       })
       .getMany()
   }
