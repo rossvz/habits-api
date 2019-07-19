@@ -1,10 +1,41 @@
-import { Get, JsonController, OnNull, Post, QueryParam } from 'routing-controllers'
+import {
+  BadRequestError,
+  Body,
+  BodyParam,
+  Get,
+  JsonController,
+  NotFoundError,
+  OnNull,
+  Post,
+  QueryParam
+} from 'routing-controllers'
+import bcrypt from 'bcrypt'
 import { getConnectionManager, Repository } from 'typeorm'
 import {
   EntityFromBody,
   EntityFromParam
 } from 'typeorm-routing-controllers-extensions'
 import { User } from '../entity/User'
+
+type LoginCredentials = {
+  email: string
+  password: string
+}
+
+const hashPassword = (password: string): Promise<string> =>
+  new Promise((resolve, reject) => {
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) reject(err)
+      else resolve(hash)
+    })
+  })
+
+const comparePassword = (password: string, hash: any) =>
+  new Promise((resolve, reject) => {
+    bcrypt.compare(password, hash, (err, res) => {
+      resolve(!err)
+    })
+  })
 
 @JsonController()
 export class UserController {
@@ -17,13 +48,33 @@ export class UserController {
 
   @Get('/users')
   @OnNull(404)
-  async get (@QueryParam("email") email?: string) {
+  async get(@QueryParam('email') email?: string) {
     const users = await this.repo.find(email ? { email } : {})
     return users.length ? users : null
   }
 
+  @Post('/login')
+  @OnNull(401)
+  async login(@Body() { email, password }: LoginCredentials) {
+    const user = await this.repo.findOne({ email })
+    if (!user) throw new NotFoundError('User not found')
+    const TESTHASH = await hashPassword('testtest')
+    const matchedPasswords = await comparePassword(password, TESTHASH)
+    if (matchedPasswords) return user
+    throw new BadRequestError('incorrect password')
+  }
+
+  @Post('/register')
+  async register(@EntityFromBody() user: User) {
+    const hashed = await hashPassword(user.password)
+    return this.repo.save({
+      ...user,
+      password: hashed
+    })
+  }
+
   @Get('/users/:userId')
-  getOne(@EntityFromParam("userId") user: User){
+  getOne(@EntityFromParam('userId') user: User) {
     return user
   }
 
