@@ -58,8 +58,8 @@ export class UserController {
   async login(@Body() { email, password }: LoginCredentials) {
     const user = await this.repo.findOne({ email })
     if (!user) throw new NotFoundError('User not found')
-    const TESTHASH = await hashPassword('testtest')
-    const matchedPasswords = await comparePassword(password, TESTHASH)
+    const hashedIncomingPassword = await hashPassword(password)
+    const matchedPasswords = await comparePassword(user.password, hashedIncomingPassword)
     if (matchedPasswords) return user
     throw new BadRequestError('incorrect password')
   }
@@ -67,10 +67,11 @@ export class UserController {
   @Post('/register')
   async register(@EntityFromBody() user: User) {
     const hashed = await hashPassword(user.password)
-    return this.repo.save({
+    const results = await this.repo.save({
       ...user,
       password: hashed
     })
+    return {...user, id: results.id, habits: []}
   }
 
   @Get('/users/:userId')
