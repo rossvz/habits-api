@@ -12,6 +12,9 @@ export class User {
   @Column()
   email: string
 
+  @Column()
+  password: string
+
   @OneToMany(type => Habit, habit => habit.user, { cascade: true, eager: true })
   habits: Habit[]
 }
