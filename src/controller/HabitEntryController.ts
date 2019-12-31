@@ -4,7 +4,6 @@ import {
   Get,
   JsonController,
   OnUndefined,
-  Param,
   Post,
   QueryParam
 } from 'routing-controllers'
